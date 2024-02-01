@@ -48,9 +48,40 @@ public class Memoria {
         } else if(tipoComando == TipoComando.NUMERO || tipoComando == TipoComando.VIRGULA) {
             textoAtual = substituir ? texto : textoAtual + texto;
             substituir = false;
+        } else {
+            substituir = true;
+            textoAtual = obterResultadoOperacao();
+            textoBuffer = textoAtual;
+            ultimaOperação = tipoComando;
         }
 
         observadores.forEach(o -> o.valorAlterado(getTextoAtual()));
+    }
+
+    private String obterResultadoOperacao() {
+        if(ultimaOperação == null) {
+            return textoAtual;
+        }
+
+        double numeroBuffer = Double.parseDouble(textoBuffer.replace(",", "."));
+        double numeroAtual = Double.parseDouble(textoAtual.replace(",", "."));
+
+        double resultado = 0;
+
+        if(ultimaOperação == TipoComando.SOMA) {
+            resultado = numeroBuffer + numeroAtual;
+        } else if (ultimaOperação == TipoComando.SUB) {
+            resultado = numeroBuffer - numeroAtual;
+        } else if (ultimaOperação == TipoComando.MULT) {
+            resultado = numeroBuffer * numeroAtual;
+        } else if (ultimaOperação == TipoComando.DIV) {
+            resultado = numeroBuffer / numeroAtual;
+        }
+
+        String texto = Double.toString(resultado).replace(".", ",");
+        boolean inteiro = texto.endsWith(",0");
+        return inteiro ? texto.replace(",0", "") : texto;
+
     }
 
     private TipoComando detectarTipoComando(String texto) {
